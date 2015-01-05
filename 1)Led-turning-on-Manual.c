@@ -1,3 +1,7 @@
+/*
+* Turns on the Led lights one by one and does a spinning wheel.
+*/
+
 #include <stm32f30x.h>
 
 void waitMe();
