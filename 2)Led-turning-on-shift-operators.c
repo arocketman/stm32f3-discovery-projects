@@ -10,7 +10,7 @@ int main(void)
 {
   RCC->AHBENR |= 0x00200000;
   GPIOE->MODER |= 0x55550000; 
-  //Ripete il giro dei led 30 volte
+  //Spin the LEDs wheel 30 times.
   int h;
   for(h = 0 ; h < 30; h++){
     int j;
