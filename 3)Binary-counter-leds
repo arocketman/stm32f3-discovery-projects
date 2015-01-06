@@ -1,0 +1,26 @@
+/*
+*Binary counter
+*/
+
+#include <stm32f30x.h>
+
+void sleepFor(int);
+
+int main(void)
+{
+  RCC->AHBENR |= 0x00200000; 
+  //We are interested in pins 8-15 , which are bits 16-31
+  GPIOE->MODER |= 0x55550000;
+  //Supposedly initial value of the leds are 0x00000000 , we want the final value to be 0x0000FF00; 
+  int i;
+  for(i = 0; i < 256; i++){
+    GPIOE->ODR += 0x00000100;
+    sleepFor(500000);
+  }
+  return 0;
+}
+
+void sleepFor(int busyTime){
+int i;
+for(i = 0; i < busyTime; i++){}
+}
