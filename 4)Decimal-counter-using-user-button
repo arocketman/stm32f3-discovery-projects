@@ -1,0 +1,30 @@
+/*
+*Sequentially turn on leds 'decimal counter'
+*/
+
+#include <stm32f30x.h>
+
+void sleepFor(int);
+
+int main(void)
+{
+  //Activate both port A and E.
+  RCC->AHBENR |= 0x00220000; 
+  //We are interested in pins 8-15 , which are bits 16-31
+  GPIOE->MODER |= 0x55550000;
+  //Supposedly initial value of the leds are 0x00000000 , we want the final value to be 0x0000FF00; 
+  int counter = 7; //Start port 7
+  while(counter <= 15){ //End port 15
+    if((GPIOA->IDR & 0x1) == 0x1){ //Checking if the bit 0 in the Input Data Register of port A (PA0) is equal to 1.
+      sleepFor(5000000);
+      GPIOE->ODR |= (1 << (++counter)); //Left shift
+    }
+  }
+  
+  return 0;
+}
+
+void sleepFor(int busyTime){
+int i;
+for(i = 0; i < busyTime; i++){}
+}
