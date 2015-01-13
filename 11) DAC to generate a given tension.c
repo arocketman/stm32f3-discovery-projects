@@ -48,6 +48,7 @@ void setupLED(void)
 void setupDAC(void)
 {
   RCC->APB1ENR |= RCC_APB1ENR_DACEN;
+  RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
   GPIOA->MODER |= 0x000000F00;
 }
 
