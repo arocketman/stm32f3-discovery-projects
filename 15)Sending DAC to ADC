@@ -1,0 +1,62 @@
+#include<stm32f30x.h>
+
+/*Generate a 1VOLT tension with the DAC and read the value with the ADC . For this program to work you'll have to connect through a jumper the ports PA2 and PA4*/
+
+int result;
+
+void setupDAC();
+void setupADC();
+
+int main()
+{
+ setupDAC();
+ setupADC();
+ 
+ DAC->DHR12R1 = 1000; //Writing the tension in the DHR12R1
+ ADC1->CR |= ADC_CR_ADSTART; //Start the ADC
+ while((ADC1->ISR & ADC_ISR_EOS) != ADC_ISR_EOS); //Wait the ADC to finish
+ result = (ADC1->DR & ADC_DR_RDATA); //Getting the result
+ 
+ ADC1->CR |= ADC_CR_ADDIS;
+}
+
+void setupDAC()
+{
+ RCC->AHBENR |= RCC_AHBENR_GPIOAEN; //GPIOA because we want to use PA4 DAC1_OUT1
+ GPIOA->MODER |= GPIO_MODER_MODER4; //PA4 to analog mode
+ RCC->APB1ENR |= RCC_APB1ENR_DACEN; //Enabling peripheral on APB1
+ DAC->CR |= DAC_CR_EN1; //Enabling DAC  
+}
+
+void setupADC()
+{
+  RCC->AHBENR |= RCC_AHBENR_ADC12EN;
+  RCC->CFGR2 &= 0xFFFFFEFF; //0xxxx: ADC12 clock disabled,ADC12 can use AHB clock
+  
+  
+  //ADVREG enable sequence
+  
+  ADC1->CR &= 0xCFFFFFFF; //ADVREGEN from 10 to 00
+  ADC1->CR |= (1<<28);
+  for(int i = 0; i < 1000; i++); //Wait the ADC to startup.
+  
+  ADC1_2->CCR|=ADC12_CCR_CKMODE_0;
+
+  
+  //Calibration phase
+  
+  ADC1->CR &= 0xFFFFFFFE; //Ensuring ADEN = 0
+  ADC1->CR &= 0xBFFFFFFF; //Single ended input
+  ADC1->CR |= ADC_CR_ADCAL; //ADCAL = 1
+  while((ADC1->CR & ADC_CR_ADCAL) == ADC_CR_ADCAL); //Wait for ADCAL = 0
+    
+  //Selecting of the channel and speed.
+  
+  ADC1->SMPR1 |= ADC_SMPR1_SMP3; //Channel 3 max. speed. Why channel 3 ? Because we want to abilitate PA2 -> Channel 3.
+  ADC1->SQR1 |= 0x000000C0; //To enable channel 3 we need to write the number of channels we want to enable in the bits L[3:0]. We want 1 conversion, so we'll just leave it 0. Then, in SQ1 we'll have to write 3.
+  
+  //Enabling ADC
+  
+  ADC1->CR |= ADC_CR_ADEN;
+  while((ADC1->ISR & ADC_ISR_ADRD) != ADC_ISR_ADRD);
+}
