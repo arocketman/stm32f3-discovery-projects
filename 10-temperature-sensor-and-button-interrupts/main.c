@@ -34,8 +34,8 @@ void setupADC1()
   
   RCC->AHBENR |= RCC_AHBENR_ADC12EN;
   ADC1_2->CCR |= (1<<16);
-  ADC1->CR &= 0xCFFFFFF; //ADVREGEN TO 00
-  ADC1->CR |= 0x1000000; //ADVREGEN TO 01
+  ADC1->CR &= 0xCFFFFFFF; //ADVREGEN TO 00
+  ADC1->CR |= 0x10000000; //ADVREGEN TO 01
   for(int i = 0; i < 1000; i++);
   ADC1->CR &= 0xFFFFFFFE; //Ensuring that ADEN = 0
   ADC1->CR &= 0xBFFFFFFF; //Single-ended-input
